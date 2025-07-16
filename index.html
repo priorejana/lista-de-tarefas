@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>
+                <i class="fas fa-check-circle"></i>
+                Minhas Tarefas
+            </h1>
+            <p id="data"></p>
+        </header>
+        <div class="entrada-tarefa">
+            <input type="text" id="campo-tarefa" placeholder="O que você precisa fazer?">
+            <button id="botao-adicionar-tarefa">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <div class="filtros">
+            <span class="filtro active" data-filter="all">
+                Todas
+            </span>
+            <span class="filtro" data-filter="active">
+                Pendentes
+            </span>
+            <span class="filtro" data-filter="completed">
+                Concluídas
+            </span>
+        </div>
+        <div class="secao-tarefas">
+            <ul id="lista-de-tarefas">
+            </ul>
+            <div class="estado-vazio hidden">
+                <i class="fas fa-clipboard-list"></i>
+                <p>Nenhuma tarefa</p>
+            </div>
+        </div>
+        <footer>
+            <p id="itens-restantes">0 itens restantes</p>
+            <button id="botao-limpar-concluidas">Limpar concluídas</button>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

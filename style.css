@@ -1,0 +1,256 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primaria: #e4167d9f;
+    --primaria-clara: #e4167d41;
+    --escura: #3b0721;
+    --clara: #e4167d0a;
+    --cinza: #6d5c659f;
+    --perigo: #e41643bd;
+    --sucesso: #90df7dda;
+    --borda: #eaeaeb;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #f1f3f5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: var(--escura);
+}
+
+.app {
+    width: 100%;
+    max-width: 500px;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    background-color: var(--primaria);
+    color: white;
+    padding: 20px 25px;
+}
+
+header h1 {
+    font-size: 24px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+header p {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.entrada-tarefa {
+    padding: 20px 25px;
+    display: flex;
+    gap: 10px;
+    background-color: var(--clara);
+    border-bottom: 1px solid var(--borda);
+}
+
+.entrada-tarefa input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #dee2e6;
+    font-size: 1rem;
+    transition: all 0.2s;
+    border-radius: 6px;
+}
+
+.entrada-tarefa input:focus {
+    outline: none;
+    border-color: var(--primaria);
+    box-shadow: 0 0 0 3px rgba(228, 22, 125, 0.15);
+}
+
+.entrada-tarefa button {
+    background-color: var(--primaria);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.entrada-tarefa button:hover {
+    background-color: var(--primaria-clara);
+}
+
+.filtros {
+    display: flex;
+    gap: 15px;
+    border-bottom: 1px solid var(--borda);
+    padding: 15px 25px;
+}
+
+.filtro {
+    padding: 5px 3px;
+    cursor: pointer;
+    color: var(--cinza);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+} 
+
+.filtro:hover {
+    color: var(--primaria);
+}
+
+.filtro.active {
+    color: var(--primaria);
+    border-bottom: 2px solid var(--primaria);
+    font-weight: 500;
+}
+
+.secao-tarefas {
+    padding: 15px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#lista-de-tarefas {
+    list-style-type: none;
+}
+
+.item-tarefa {
+    padding: 12px 25px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.item-tarefa:hover {
+    background-color: var(--clara);
+}
+
+.container-checkbox {
+    margin-right: 15px;
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+
+.checkbox-tarefa {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.marca-selecao {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: all 0.2s;
+}
+
+.checkbox-tarefa:checked + .marca-selecao {
+    background-color: var(--sucesso);
+    border-color: var(--sucesso);
+}
+
+.checkbox-tarefa:checked + .marca-selecao::after{
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.texto-item-tarefa {
+    flex: 1;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.item-tarefa.concluido .texto-item-tarefa {
+    text-decoration: line-through;
+    color: var(--cinza);
+}
+
+.botao-deletar {
+    background: none;
+    border: none;
+    color: var(--cinza);
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.item-tarefa:hover .botao-deletar {
+    opacity: 1;
+}
+
+.botao-deletar:hover {
+    color: var(--perigo);
+}
+
+.estado-vazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    color: var(--cinza);
+}
+
+.estado-vazio i {
+    font-size: 40px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+}
+
+.hidden {
+    display: none;
+}
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    border-top: 1px solid var(--borda);
+    background-color: var(--clara);
+    font-size: 14px;
+}
+
+#itens-restantes {
+    color: var(--cinza);
+}
+
+#botao-limpar-concluidas {
+    background: none;
+    border: none;
+    color: var(--cinza);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#botao-limpar-concluidas:hover {
+    color: var(--perigo);
+}
