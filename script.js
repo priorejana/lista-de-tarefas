@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api/tasks';
+const API_URL = 'https://lista-de-tarefas-3op7.onrender.com/api/tasks';
 
 const campoTarefa = document.getElementById("campo-tarefa");
 const botaoAdicionarTarefa = document.getElementById("botao-adicionar-tarefa");
