@@ -1,3 +1,5 @@
+const API_URL = 'http://localhost:3000/api/tasks';
+
 const campoTarefa = document.getElementById("campo-tarefa");
 const botaoAdicionarTarefa = document.getElementById("botao-adicionar-tarefa");
 const listaDeTarefas = document.getElementById("lista-de-tarefas");
@@ -10,41 +12,78 @@ const filtros = document.querySelectorAll(".filtro");
 let tarefas = [];
 let filtroAtual = "all";
 
-botaoAdicionarTarefa.addEventListener("click", () => {
-    adicionarTarefa(campoTarefa.value);
-});
-
-campoTarefa.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        adicionarTarefa(campoTarefa.value);
+async function carregarTarefas() {
+    try {
+        const response = await fetch(API_URL);
+        tarefas = await response.json(); // Salva no array a resposta do PostgreSQL
+        renderizarTarefas();
+        atualizarContagemItens();
+        verificarEstadoVazio();
+    } catch (error) {
+        console.error("Erro ao buscar tarefas do servidor:", error);
     }
-});
-
-botaoLimparConcluidas.addEventListener("click", limparConcluidas);
-
-function adicionarTarefa(texto) {
-    if (texto.trim() === "") return;
-
-    const tarefa = {
-        id: Date.now(),
-        texto: texto,
-        completa: false,
-    };
-    tarefas.push(tarefa);
-
-    salvarTarefas();
-    renderizarTarefas();
-    campoTarefa.value = "";
 }
 
-function salvarTarefas() {
-    localStorage.setItem("tarefas", JSON.stringify(tarefas));
-    atualizarContagemItens();
-    verificarEstadoVazio();
+async function adicionarTarefa(texto) {
+    if (texto.trim() === "") return;
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: texto }) 
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(errorData.errors ? errorData.errors[0].msg : "Erro ao adicionar tarefa.");
+            return;
+        }
+
+        campoTarefa.value = "";
+        await carregarTarefas(); 
+    } catch (error) {
+        console.error("Erro ao salvar tarefa no servidor:", error);
+    }
+}
+
+async function alternarStatusTarefa(id, statusAtual) {
+    try {
+        await fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ completed: !statusAtual })
+        });
+        await carregarTarefas();
+    } catch (error) {
+        console.error("Erro ao atualizar tarefa:", error);
+    }
+}
+
+async function deletarTarefa(id) {
+    try {
+        await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE'
+        });
+        await carregarTarefas();
+    } catch (error) {
+        console.error("Erro ao deletar tarefa:", error);
+    }
+}
+
+async function limparConcluidas() {
+    try {
+        await fetch(`${API_URL}/completed/all`, {
+            method: 'DELETE'
+        });
+        await carregarTarefas();
+    } catch (error) {
+        console.error("Erro ao limpar concluídas:", error);
+    }
 }
 
 function atualizarContagemItens() {
-    const tarefasNaoConcluidas = tarefas.filter(tarefa => !tarefa.completa);
+    const tarefasNaoConcluidas = tarefas.filter(tarefa => !tarefa.completed);
     const quantidade = tarefasNaoConcluidas.length;
 
     if (quantidade === 1) {
@@ -56,7 +95,7 @@ function atualizarContagemItens() {
 
 function verificarEstadoVazio() {
     const tarefasFiltradas = filtrarTarefas(filtroAtual);
-    if (tarefasFiltradas?.length === 0) {
+    if (tarefasFiltradas.length === 0) {
         estadoVazio.classList.remove("hidden");
     } else {
         estadoVazio.classList.add("hidden");
@@ -66,9 +105,9 @@ function verificarEstadoVazio() {
 function filtrarTarefas(filtro) {
     switch (filtro) {
         case "active":
-            return tarefas.filter(tarefa => !tarefa.completa);
+            return tarefas.filter(tarefa => !tarefa.completed);
         case "completed":
-            return tarefas.filter(tarefa => tarefa.completa);
+            return tarefas.filter(tarefa => tarefa.completed);
         default:
             return tarefas;
     }
@@ -76,13 +115,12 @@ function filtrarTarefas(filtro) {
 
 function renderizarTarefas() {
     listaDeTarefas.innerHTML = "";
-
     const tarefasFiltradas = filtrarTarefas(filtroAtual);
 
     tarefasFiltradas.forEach(tarefa => {
         const itemTarefa = document.createElement("li");
         itemTarefa.classList.add("item-tarefa");
-        if (tarefa.completa) {
+        if (tarefa.completed) {
             itemTarefa.classList.add("concluido");
         }
 
@@ -92,8 +130,8 @@ function renderizarTarefas() {
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.classList.add("checkbox-tarefa");
-        checkbox.checked = tarefa.completa;
-        checkbox.addEventListener("change", () => alternarStatusTarefa(tarefa.id));
+        checkbox.checked = tarefa.completed;
+        checkbox.addEventListener("change", () => alternarStatusTarefa(tarefa.id, tarefa.completed));
 
         const marcaDeSelecao = document.createElement("span");
         marcaDeSelecao.classList.add("marca-selecao");
@@ -103,7 +141,7 @@ function renderizarTarefas() {
 
         const textoTarefa = document.createElement("span");
         textoTarefa.classList.add("texto-item-tarefa");
-        textoTarefa.textContent = tarefa.texto;
+        textoTarefa.textContent = tarefa.title;
 
         const botaoDeletar = document.createElement("button");
         botaoDeletar.classList.add("botao-deletar");
@@ -118,36 +156,17 @@ function renderizarTarefas() {
     });
 }
 
-function limparConcluidas() {
-    tarefas = tarefas.filter((tarefa) => !tarefa.completa);
-    salvarTarefas();
-    renderizarTarefas();
-}
+botaoAdicionarTarefa.addEventListener("click", () => {
+    adicionarTarefa(campoTarefa.value);
+});
 
-function alternarStatusTarefa(id) {
-    tarefas = tarefas.map(tarefa => {
-        if (tarefa.id === id) {
-            return { ...tarefa, completa: !tarefa.completa };
-        }
-        return tarefa;
-    });
-    salvarTarefas();
-    renderizarTarefas();
-}
-
-function deletarTarefa(id) {
-    tarefas = tarefas.filter((tarefa) => tarefa.id !== id);
-    salvarTarefas();
-    renderizarTarefas();
-}
-
-function carregarTarefas() {
-    const tarefasSalvas = localStorage.getItem("tarefas");
-    if (tarefasSalvas) {
-        tarefas = JSON.parse(tarefasSalvas);
+campoTarefa.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        adicionarTarefa(campoTarefa.value);
     }
-    renderizarTarefas();
-}
+});
+
+botaoLimparConcluidas.addEventListener("click", limparConcluidas);
 
 filtros.forEach(filtro => {
     filtro.addEventListener("click", () => {
@@ -167,6 +186,7 @@ function definirFiltroAtivo(filtro) {
     });
 
     renderizarTarefas();
+    verificarEstadoVazio();
 }
 
 function definirData() {
@@ -177,7 +197,5 @@ function definirData() {
 
 window.addEventListener("DOMContentLoaded", () => {
     carregarTarefas();
-    atualizarContagemItens();
-    verificarEstadoVazio();
     definirData();
 });
